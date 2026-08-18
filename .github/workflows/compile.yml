@@ -23,13 +23,17 @@ jobs:
           URL="https://github.com/ambiot/ambd_arduino/raw/master/Arduino_package/package_realtek_amebad_index.json"
           
           arduino-cli core update-index --additional-urls "$URL"
-          arduino-cli core install realtek:amebad --additional-urls "$URL"
+          arduino-cli core install realtek:AmebaD --additional-urls "$URL"
           arduino-cli lib install "Adafruit GFX Library" "Adafruit SSD1306"
 
           mkdir -p BW16
           cp * BW16/ 2>/dev/null || true
 
-          arduino-cli compile --fqbn realtek:amebad:BW16 --additional-urls "$URL" --output-dir ./build BW16
+          FQBN=$(arduino-cli board listall | grep -i "BW16" | awk '{print $NF}' | head -n 1)
+          if [ -z "$FQBN" ]; then FQBN="realtek:AmebaD:BW16"; fi
+          
+          echo "Використовується FQBN: $FQBN"
+          arduino-cli compile --fqbn "$FQBN" --additional-urls "$URL" --output-dir ./build BW16
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
