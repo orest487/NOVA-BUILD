@@ -11,9 +11,8 @@ jobs:
 
       - name: Install System Dependencies
         run: |
-          sudo dpkg --add-architecture i386
-          sudo apt-get update
-          sudo apt-get install -y libc6:i386 libstdc++6:i386 python3 python-is-python3
+          sudo DEBIAN_FRONTEND=noninteractive apt-get update -qq
+          sudo DEBIAN_FRONTEND=noninteractive apt-get install -y python3 python-is-python3
 
       - name: Setup Arduino CLI
         uses: arduino/setup-arduino-cli@v2
@@ -23,17 +22,14 @@ jobs:
           URL="https://github.com/ambiot/ambd_arduino/raw/master/Arduino_package/package_realtek_amebad_index.json"
           
           arduino-cli core update-index --additional-urls "$URL"
-          arduino-cli core install realtek:AmebaD --additional-urls "$URL"
+          arduino-cli core install realtek:AmebaD --additional-urls "$URL" --verbose
           arduino-cli lib install "Adafruit GFX Library" "Adafruit SSD1306"
 
           mkdir -p BW16
           cp * BW16/ 2>/dev/null || true
 
-          FQBN=$(arduino-cli board listall | grep -i "BW16" | awk '{print $NF}' | head -n 1)
-          if [ -z "$FQBN" ]; then FQBN="realtek:AmebaD:BW16"; fi
-          
           mkdir -p ./build
-          arduino-cli compile --fqbn "$FQBN" --additional-urls "$URL" --output-dir ./build BW16
+          arduino-cli compile --fqbn realtek:AmebaD:BW16 --additional-urls "$URL" --output-dir ./build --verbose BW16
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
