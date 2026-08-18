@@ -28,15 +28,18 @@ jobs:
           mkdir -p BW16
           cp * BW16/ 2>/dev/null || true
 
-          # Автоматичний пошук точного FQBN для BW16
           FQBN=$(arduino-cli board listall --additional-urls "$URL" | grep -i "BW16" | awk '{print $NF}' | tail -n 1)
-          echo "Знайдено FQBN: $FQBN"
+          if [ -z "$FQBN" ]; then FQBN="realtek:AmebaD:BW16_RTL8720DN"; fi
+          
+          # Компілюємо та експортуємо бінарники безпосередньо
+          arduino-cli compile --fqbn "$FQBN" --additional-urls "$URL" --export-binaries BW16
 
-          mkdir -p ./build
-          arduino-cli compile --fqbn "$FQBN" --additional-urls "$URL" --output-dir ./build BW16
+          # Копіюємо всі створені .bin файли в окрему папку
+          mkdir -p build_output
+          find . -name "*.bin" -exec cp {} build_output/ \;
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
           name: BW16-Firmware
-          path: ./build/
+          path: build_output/
