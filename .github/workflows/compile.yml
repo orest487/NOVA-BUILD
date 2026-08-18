@@ -12,24 +12,20 @@ jobs:
       - name: Setup Arduino CLI
         uses: arduino/setup-arduino-cli@v2
 
-      - name: Prepare and Compile
+      - name: Compile
         run: |
           URL="https://github.com/ambiot/ambd_arduino/raw/master/Arduino_package/package_realtek_amebad_index.json"
           
-          # Налаштування та завантаження ядра
-          arduino-cli config init
+          arduino-cli config init --force
           arduino-cli config set board_manager.additional_urls $URL
-          arduino-cli core update-index --additional-urls $URL
-          arduino-cli core install realtek:amebad@3.0.8 --additional-urls $URL
           
-          # Встановлення потрібних бібліотек
+          arduino-cli core update-index --additional-urls $URL
+          arduino-cli core install realtek:amebad --additional-urls $URL
           arduino-cli lib install "Adafruit GFX Library" "Adafruit SSD1306"
 
-          # Підготовка структури проєкту (створюємо папку BW16)
           mkdir -p BW16
           cp * BW16/ 2>/dev/null || true
 
-          # Компіляція скетчу
           arduino-cli compile --fqbn realtek:amebad:BW16 --additional-urls $URL --output-dir ./build BW16
 
       - name: Upload Artifact
