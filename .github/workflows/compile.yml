@@ -13,18 +13,14 @@ jobs:
         run: |
           sudo dpkg --add-architecture i386
           sudo apt-get update
-          sudo apt-get install -y libc6:i386 libstdc++6:i386 python3
+          sudo apt-get install -y libc6:i386 libstdc++6:i386 python3 python-is-python3
 
       - name: Setup Arduino CLI
         uses: arduino/setup-arduino-cli@v2
 
       - name: Install Core and Compile
         run: |
-          set -e
           URL="https://github.com/ambiot/ambd_arduino/raw/master/Arduino_package/package_realtek_amebad_index.json"
-          
-          arduino-cli config init --overwrite
-          arduino-cli config set board_manager.additional_urls "$URL"
           
           arduino-cli core update-index --additional-urls "$URL"
           arduino-cli core install realtek:amebad --additional-urls "$URL"
