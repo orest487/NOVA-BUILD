@@ -1,0 +1,27 @@
+name: Compile BW16 Firmware
+
+on: [push, workflow_dispatch]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Arduino CLI
+        uses: arduino/setup-arduino-cli@v2
+
+      - name: Compile
+        run: |
+          arduino-cli config init
+          arduino-cli config set board_manager.additional_urls https://github.com/ambiot/ambd_arduino/raw/master/Arduino_package/package_realtek_amebad_index.json
+          arduino-cli core update-index
+          arduino-cli core install realtek:amebad@3.0.8
+          arduino-cli compile --fqbn realtek:amebad:BW16 --output-dir ./build .
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: BW16-Firmware
+          path: ./build/*.bin
