@@ -9,15 +9,20 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
       - name: Setup Arduino CLI
         uses: arduino/setup-arduino-cli@v2
 
-      - name: Compile
+      - name: Install Core and Compile
         run: |
           URL="https://github.com/ambiot/ambd_arduino/raw/master/Arduino_package/package_realtek_amebad_index.json"
           
           arduino-cli config init --overwrite
-          arduino-cli config set board_manager.additional_urls $URL
+          arduino-cli config set board_manager.additional_urls "$URL"
           
           arduino-cli core update-index
           arduino-cli core install realtek:amebad
